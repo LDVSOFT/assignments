@@ -1,17 +1,16 @@
 package ru.spbau.mit;
 
-import junit.framework.TestCase;
-import org.junit.Assert;
-import org.junit.Rule;
+import static org.junit.Assert.*;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class SerializableStingSetTest extends TestCase {
+public class SerializableStingSetTest {
+
+    @Test
     public void testSimple() {
         StringSet stringSet = instance();
 
@@ -21,6 +20,7 @@ public class SerializableStingSetTest extends TestCase {
         assertEquals(1, stringSet.howManyStartsWithPrefix("abc"));
     }
 
+    @Test
     public void testSimpleSerialization() {
         StringSet stringSet = instance();
 
@@ -39,9 +39,7 @@ public class SerializableStingSetTest extends TestCase {
     }
 
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
+    @Test(expected=SerializationException.class)
     public void testSimpleSerializationFails() {
         StringSet stringSet = instance();
 
@@ -55,7 +53,6 @@ public class SerializableStingSetTest extends TestCase {
             }
         };
 
-        thrown.expect(SerializationException.class);
         ((StreamSerializable) stringSet).serialize(outputStream);
     }
 
