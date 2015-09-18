@@ -5,11 +5,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Created by ldvsoft on 18.09.15.
+ * StringSetImplementation
+ * @author ldvsoft
  */
 public class StringSetImpl implements StringSet, StreamSerializable {
+	/**
+	 * Alphabet size.
+	 * Value is to support ASCII letters
+	 */
 	private static final int ALPHABET_SIZE = 127;
 
+	/**
+	 * Serialization.
+	 * Just calling TrieNode deep-first search-alike recursion
+	 * @param out Output stream, serialized data goes there
+	 */
 	@Override
 	public void serialize(OutputStream out) {
 		try {
@@ -19,28 +29,70 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		}
 	}
 
+	/**
+	 * Deserialization.
+	 * Just calling TrieNode deep-first search-alike constructor
+	 * @param in Input stream, frow which data is taken
+	 */
 	@Override
 	public void deserialize(InputStream in) {
 		// Delete old trie
 		root = null;
 		// Then build new one
 		try {
-			root = new TrieNode(in, null);
+			root = new TrieNode(in);
 		} catch (IOException e) {
 			throw new SerializationException();
 		}
 	}
 
+	/**
+	 * Internal trie nodes
+	 */
 	private static class TrieNode {
+		/**
+		 * Array of children nodes. If there is child, corresponding to letter `a',
+		 * it will be stored at `children[`a']', else there will be null
+		 */
 		public TrieNode[] children = new TrieNode[ALPHABET_SIZE];
+		/**
+		 * Parent node. null, if root.
+		 */
 		public TrieNode parent = null;
+		/**
+		 * Is that node final for string stored in trie
+		 */
 		public boolean isFinal = false;
+		/**
+		 * Count of string in subtrie of this node. That does include this node.
+		 */
 		public int count = 0;
 
+		/**
+		 * Default constructor. Used for creating empty root node.
+		 */
+		public TrieNode() {
+			this((TrieNode)null);
+		}
+
+		/**
+		 * Constructor for empty non-root node.
+		 * @param parent parent of a new node
+		 */
 		public TrieNode(TrieNode parent) {
 			this.parent = parent;
 		}
 
+		/**
+		 * Serialisation of subtree of this node.
+		 * Format is:
+		 * 1. 1 byte: 0 or 1 for `isFinal'
+		 * 2. 1 byte for next child's letter, 0 if there's none
+		 * 3. If previous char was not zero, recursively described subtrie of that child.
+		 *    After, go again to step 2.
+		 * @param out Output stream
+		 * @throws IOException in case of IO failure
+		 */
 		public void serialize(OutputStream out) throws IOException {
 			out.write(isFinal ? 1 : 0);
 			for (char c = 1; c != ALPHABET_SIZE; ++c) {
@@ -52,7 +104,26 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 			out.write(0);
 		}
 
-		public TrieNode(InputStream in, TrieNode parent) throws IOException {
+		/**
+		 * Deserialisation constructor.
+		 * Creates trie described in input stream (root node).
+		 * As described in `serialize', it will read subtree until zero-child.
+		 * @param in Input stream
+		 * @throws IOException in case of IO failure
+		 */
+		public TrieNode(InputStream in) throws IOException {
+			this(in, null);
+		}
+
+		/**
+		 * Deserialisation constructor.
+		 * Creates subtrie described in input stream with given parent.
+		 * As described in `serialize', it will read subtree until zero-child.
+		 * @param in Input stream
+		 * @param parent Parent of new node
+		 * @throws IOException in case of IO failure
+		 */
+		private TrieNode(InputStream in, TrieNode parent) throws IOException {
 			if (in.read() == 1) {
 				isFinal = true;
 				count += 1;
@@ -67,10 +138,19 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		}
 	}
 
-	private TrieNode root = new TrieNode(null);
+	/**
+	 * Trie root node.
+	 */
+	private TrieNode root = new TrieNode();
 
+	/**
+	 * Adding string. If string was already in trie, do nothing.
+	 * @param element new string to be added
+	 * @return was adding successful
+	 */
 	@Override
 	public boolean add(String element) {
+		// Descending in trie, creating new nodes if needed
 		TrieNode node = root;
 		int pos = 0;
 		while (pos != element.length()) {
@@ -82,9 +162,12 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 			}
 			pos += 1;
 		}
-		if (node.isFinal)
+		if (node.isFinal) {
+			// There is already given string in trie
 			return false;
+		}
 		node.isFinal = true;
+		// Ascending back, incrementing count
 		while (node != null)
 		{
 			node.count += 1;
@@ -93,8 +176,15 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		return true;
 	}
 
+	/**
+	 * Check is there a given string in trie
+	 * @param element string to be found
+	 * @return is there a given string
+	 */
 	@Override
 	public boolean contains(String element) {
+		// Descending in trie, searching for string.
+		// If there is missing node, just return false
 		TrieNode node = root;
 		int pos = 0;
 		while (pos != element.length()) {
@@ -107,8 +197,16 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		return node.isFinal;
 	}
 
+	/**
+	 * Remove string from trie.
+	 * If there was not, do nothing
+	 * @param element string to be removed
+	 * @return success on deleting
+	 */
 	@Override
 	public boolean remove(String element) {
+		// Descending in trie, searching for string.
+		// If there is missing node, just return false
 		TrieNode node = root;
 		int pos = 0;
 		while (pos != element.length()) {
@@ -120,6 +218,7 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		}
 		if (node.isFinal)
 			return false;
+		// Ascending back, decrementing count
 		node.isFinal = false;
 		while (node != null)
 		{
@@ -129,13 +228,24 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		return true;
 	}
 
+	/**
+	 * How many string there are in trie.
+	 * @return count of elements in trie
+	 */
 	@Override
 	public int size() {
-		return howManyStartsWithPrefix("");
+		return root.count;
 	}
 
+	/**
+	 * How many strings there are with given prefix.
+	 * @param prefix the prefix
+	 * @return count of elements with that prefix
+	 */
 	@Override
 	public int howManyStartsWithPrefix(String prefix) {
+		// Descending in trie for common prefix node.
+		// If there is missing node, just return 0
 		TrieNode node = root;
 		int pos = 0;
 		while (pos != prefix.length()) {
