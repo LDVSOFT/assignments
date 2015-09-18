@@ -1,10 +1,35 @@
 package ru.spbau.mit;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * Created by ldvsoft on 18.09.15.
  */
-public class StringSetImpl implements StringSet {
+public class StringSetImpl implements StringSet, StreamSerializable {
 	private static final int ALPHABET_SIZE = 127;
+
+	@Override
+	public void serialize(OutputStream out) {
+		try {
+			root.serialize(out);
+		} catch (IOException e) {
+			throw new SerializationException();
+		}
+	}
+
+	@Override
+	public void deserialize(InputStream in) {
+		// Delete old trie
+		root = null;
+		// Then build new one
+		try {
+			root = new TrieNode(in, null);
+		} catch (IOException e) {
+			throw new SerializationException();
+		}
+	}
 
 	private static class TrieNode {
 		public TrieNode[] children = new TrieNode[ALPHABET_SIZE];
@@ -14,6 +39,31 @@ public class StringSetImpl implements StringSet {
 
 		public TrieNode(TrieNode parent) {
 			this.parent = parent;
+		}
+
+		public void serialize(OutputStream out) throws IOException {
+			out.write(isFinal ? 1 : 0);
+			for (char c = 1; c != ALPHABET_SIZE; ++c) {
+				if (children[c] == null)
+					continue;
+				out.write(c);
+				children[c].serialize(out);
+			}
+			out.write(0);
+		}
+
+		public TrieNode(InputStream in, TrieNode parent) throws IOException {
+			if (in.read() == 1) {
+				isFinal = true;
+				count += 1;
+			}
+			while (true) {
+				char c = (char) in.read();
+				if (c == 0)
+					return;
+				children[c] = new TrieNode(in, this);
+				count += children[c].count;
+			}
 		}
 	}
 
