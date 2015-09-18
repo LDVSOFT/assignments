@@ -136,8 +136,9 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 			pos -= 1;
 			node.count -= 1;
 			node = node.parent;
-			if (node != null && node.children[(int) element.charAt(pos)].count == 0)
+			if (node != null && node.children[(int) element.charAt(pos)].count == 0) {
 				node.children[(int) element.charAt(pos)] = null;
+			}
 		}
 		return true;
 	}
