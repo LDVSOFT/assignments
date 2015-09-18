@@ -45,7 +45,16 @@ public class StringSetImpl implements StringSet {
 
 	@Override
 	public boolean contains(String element) {
-		return false;
+		TrieNode node = root;
+		int pos = 0;
+		while (pos != element.length()) {
+			if (node.children[(int)element.charAt(pos)] == null) {
+				return false;
+			}
+			node = node.children[(int) element.charAt(pos)];
+			pos += 1;
+		}
+		return node.isFinal;
 	}
 
 	@Override
