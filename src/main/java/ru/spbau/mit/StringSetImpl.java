@@ -44,7 +44,7 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 	@Override
 	public void deserialize(InputStream in) {
 		// Delete old trie
-		root = null;
+		root = new TrieNode();
 		// Then build new one
 		try {
 			root = new TrieNode(in);
