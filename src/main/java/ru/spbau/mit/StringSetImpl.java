@@ -127,14 +127,17 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 			node = node.children[(int) element.charAt(pos)];
 			pos += 1;
 		}
-		if (node.isFinal) {
+		if (!node.isFinal) {
 			return false;
 		}
 		// Ascending back, decrementing count
 		node.isFinal = false;
 		while (node != null) {
+			pos -= 1;
 			node.count -= 1;
 			node = node.parent;
+			if (node != null && node.children[(int) element.charAt(pos)].count == 0)
+				node.children[(int) element.charAt(pos)] = null;
 		}
 		return true;
 	}
