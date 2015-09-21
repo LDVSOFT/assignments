@@ -298,10 +298,10 @@ public class StringSetImpl implements StringSet, StreamSerializable {
         /**
          * General method for descending-ascening in trie.
          *
-         * @param param string, describing descending path
+         * @param param           string, describing descending path
          * @param onChildNotFound Callback, invoked when child not was not found while descending
-         * @param onNodeReached Callback, invoked when node for `param' was found
-         * @param onRollback Callback, invoked when ascending back from found node
+         * @param onNodeReached   Callback, invoked when node for `param' was found
+         * @param onRollback      Callback, invoked when ascending back from found node
          * @return true on success, false on failure (may be impiled by first two callbacks)
          */
         private boolean dfs(String param,
@@ -314,11 +314,11 @@ public class StringSetImpl implements StringSet, StreamSerializable {
         /**
          * Implementation for descending-ascening in trie.
          *
-         * @param param string, describing descending path
-         * @param pos current string pos
+         * @param param           string, describing descending path
+         * @param pos             current string pos
          * @param onChildNotFound Callback, invoked when child not was not found while descending
-         * @param onNodeReached Callback, invoked when node for `param' was found
-         * @param onRollback Callback, invoked when ascending back from found node
+         * @param onNodeReached   Callback, invoked when node for `param' was found
+         * @param onRollback      Callback, invoked when ascending back from found node
          * @return true on success, false on failure (may be impiled by first two callbacks)
          */
         private boolean dfs(String param, int pos,
