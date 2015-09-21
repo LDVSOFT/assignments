@@ -3,8 +3,9 @@ package ru.spbau.mit;
 public interface StringSet {
     /**
      * Expected complexity: O(|element|)
+     *
      * @return <tt>true</tt> if this set did not already contain the specified
-     *         element
+     * element
      */
     boolean add(String element);
 
@@ -16,6 +17,7 @@ public interface StringSet {
 
     /**
      * Expected complexity: O(|element|)
+     *
      * @return <tt>true</tt> if this set contained the specified element
      */
     boolean remove(String element);
