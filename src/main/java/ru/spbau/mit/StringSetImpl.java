@@ -337,8 +337,9 @@ public class StringSetImpl implements StringSet, StreamSerializable {
                     return false;
                 }
                 // Already success, not interrupting
-                if (onRollback != null)
+                if (onRollback != null) {
                     onRollback.invoke(nextChar, this);
+                }
                 return true;
             } else {
                 return !(onNodeReached != null && !onNodeReached.invoke((char) 0, this));
