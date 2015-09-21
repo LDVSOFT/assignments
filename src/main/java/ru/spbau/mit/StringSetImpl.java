@@ -235,6 +235,7 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 		 * @throws IOException in case of IO failure
 		 */
 		private TrieNode(InputStream in, TrieNode parent) throws IOException {
+			this.parent = parent;
 			if (in.read() == 1) {
 				isFinal = true;
 				count += 1;
