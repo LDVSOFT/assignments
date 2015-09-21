@@ -12,7 +12,7 @@ import java.io.OutputStream;
 public class StringSetImpl implements StringSet, StreamSerializable {
     /**
      * Alphabet size.
-     * Value is to support ASCII letters
+     * Value is to support ASCII letters.
      */
     private static final int ALPHABET_SIZE = 127;
     /**
@@ -22,7 +22,7 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 
     /**
      * Serialization.
-     * Just calling TrieNode deep-first search-alike recursion
+     * Just calling TrieNode deep-first search-alike recursion.
      *
      * @param out Output stream, serialized data goes there
      */
@@ -37,9 +37,9 @@ public class StringSetImpl implements StringSet, StreamSerializable {
 
     /**
      * Deserialization.
-     * Just calling TrieNode deep-first search-alike constructor
+     * Just calling TrieNode deep-first search-alike constructor.
      *
-     * @param in Input stream, frow which data is taken
+     * @param in Input stream, from which data is taken
      */
     @Override
     public void deserialize(InputStream in) {
@@ -61,85 +61,101 @@ public class StringSetImpl implements StringSet, StreamSerializable {
      */
     @Override
     public boolean add(String element) {
-        // Descending in trie, creating new nodes if needed
-        TrieNode node = root;
-        int pos = 0;
-        while (pos != element.length()) {
-            if (node.children[(int) element.charAt(pos)] == null) {
-                node.children[(int) element.charAt(pos)] = new TrieNode(node);
-            }
-            node = node.children[(int) element.charAt(pos)];
-            pos += 1;
-        }
-        if (node.isFinal) {
-            // There is already given string in trie
-            return false;
-        }
-        node.isFinal = true;
-        // Ascending back, incrementing count
-        while (node != null) {
-            node.count += 1;
-            node = node.parent;
-        }
-        return true;
+        return root.dfs(element,
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // While descending child was not found, creating new one
+                        node.children[c] = new TrieNode();
+                        return true;
+                    }
+                },
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // Node for new string found, checking if it's already occupied
+                        if (node.isFinal)
+                            return false;
+                        node.isFinal = true;
+                        node.count += 1;
+                        return true;
+                    }
+                },
+                new TrieNode.DfsCallback() {
+                    @Override
+                    public void invoke(char c, TrieNode node) {
+                        // Incrementing all parents' counts on success
+                        node.count += 1;
+                    }
+                }
+        );
     }
 
     /**
-     * Check is there a given string in trie
+     * Check is there a given string in trie.
      *
      * @param element string to be found
      * @return is there a given string
      */
     @Override
     public boolean contains(String element) {
-        // Descending in trie, searching for string.
-        // If there is missing node, just return false
-        TrieNode node = root;
-        int pos = 0;
-        while (pos != element.length()) {
-            if (node.children[(int) element.charAt(pos)] == null) {
-                return false;
-            }
-            node = node.children[(int) element.charAt(pos)];
-            pos += 1;
-        }
-        return node.isFinal;
+        return root.dfs(element,
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // If child was not found, just halt
+                        return false;
+                    }
+                },
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // Found node, halting if there is no such element
+                        return node.isFinal;
+                    }
+                },
+                null
+        );
     }
 
     /**
      * Remove string from trie.
-     * If there was not, do nothing
+     * If there was not, do nothing.
      *
      * @param element string to be removed
      * @return success on deleting
      */
     @Override
     public boolean remove(String element) {
-        // Descending in trie, searching for string.
-        // If there is missing node, just return false
-        TrieNode node = root;
-        int pos = 0;
-        while (pos != element.length()) {
-            if (node.children[(int) element.charAt(pos)] == null) {
-                return false;
-            }
-            node = node.children[(int) element.charAt(pos)];
-            pos += 1;
-        }
-        if (!node.isFinal) {
-            return false;
-        }
-        // Ascending back, decrementing count
-        node.isFinal = false;
-        while (node != null) {
-            pos -= 1;
-            node.count -= 1;
-            node = node.parent;
-            if (node != null && node.children[(int) element.charAt(pos)].count == 0) {
-                node.children[(int) element.charAt(pos)] = null;
-            }
-        }
-        return true;
+        return root.dfs(element,
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // While descending child was not found, halting
+                        return false;
+                    }
+                },
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // Node for new string found, checking if it's not occupied
+                        if (!node.isFinal)
+                            return false;
+                        node.isFinal = false;
+                        node.count -= 1;
+                        return true;
+                    }
+                }, new TrieNode.DfsCallback() {
+                    @Override
+                    public void invoke(char c, TrieNode node) {
+                        // Decrementing all parents' counts on success
+                        node.count -= 1;
+                        // If child has no strings in it, free memory
+                        if (node.children[c].count == 0) {
+                            node.children[c] = null;
+                        }
+                    }
+                });
     }
 
     /**
@@ -153,6 +169,11 @@ public class StringSetImpl implements StringSet, StreamSerializable {
     }
 
     /**
+     * Variable to save result of callback in `howManyStartsWithPrefix', because Java can't capture properly.
+     */
+    private int howManyStartsWithPrefixResult;
+
+    /**
      * How many strings there are with given prefix.
      *
      * @param prefix the prefix
@@ -160,28 +181,31 @@ public class StringSetImpl implements StringSet, StreamSerializable {
      */
     @Override
     public int howManyStartsWithPrefix(String prefix) {
-        // Descending in trie for common prefix node.
-        // If there is missing node, just return 0
-        TrieNode node = root;
-        int pos = 0;
-        while (pos != prefix.length()) {
-            if (node.children[(int) prefix.charAt(pos)] == null) {
-                return 0;
-            }
-            node = node.children[(int) prefix.charAt(pos)];
-            pos += 1;
-        }
-        return node.count;
+        howManyStartsWithPrefixResult = 0;
+        root.dfs(prefix,
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // While descending child was not found, halting
+                        return false;
+                    }
+                },
+                new TrieNode.DfsStoppableCallback() {
+                    @Override
+                    public boolean invoke(char c, TrieNode node) {
+                        // Node found, gathering result
+                        howManyStartsWithPrefixResult = node.count;
+                        return true;
+                    }
+                },
+                null);
+        return howManyStartsWithPrefixResult;
     }
 
     /**
      * Internal trie nodes
      */
     private static class TrieNode {
-        /**
-         * Parent node. null, if root.
-         */
-        private TrieNode parent = null;
         /**
          * Is that node final for string stored in trie
          */
@@ -200,41 +224,17 @@ public class StringSetImpl implements StringSet, StreamSerializable {
          * Default constructor. Used for creating empty root node.
          */
         private TrieNode() {
-            this((TrieNode) null);
-        }
-
-        /**
-         * Constructor for empty non-root node.
-         *
-         * @param parent parent of a new node
-         */
-        private TrieNode(TrieNode parent) {
-            this.parent = parent;
         }
 
         /**
          * Deserialisation constructor.
-         * Creates trie described in input stream (root node).
+         * Creates subtrie described in input stream.
          * As described in `serialize', it will read subtree until zero-child.
          *
          * @param in Input stream
          * @throws IOException in case of IO failure
          */
         private TrieNode(InputStream in) throws IOException {
-            this(in, null);
-        }
-
-        /**
-         * Deserialisation constructor.
-         * Creates subtrie described in input stream with given parent.
-         * As described in `serialize', it will read subtree until zero-child.
-         *
-         * @param in     Input stream
-         * @param parent Parent of new node
-         * @throws IOException in case of IO failure
-         */
-        private TrieNode(InputStream in, TrieNode parent) throws IOException {
-            this.parent = parent;
             if (in.read() == 1) {
                 isFinal = true;
                 count += 1;
@@ -244,7 +244,7 @@ public class StringSetImpl implements StringSet, StreamSerializable {
                 if (c == 0) {
                     return;
                 }
-                children[c] = new TrieNode(in, this);
+                children[c] = new TrieNode(in);
                 count += children[c].count;
             }
         }
@@ -272,6 +272,77 @@ public class StringSetImpl implements StringSet, StreamSerializable {
             out.write(0);
         }
 
+        private interface DfsStoppableCallback {
+            /**
+             * Callback interface for dfs.
+             * It can interrupt work of descending and ascending back.
+             * For example, child node not found while removing element
+             *
+             * @param c    current char of descending, 0 if not required
+             * @param node current node
+             * @return true if to continue, false to stop
+             */
+            boolean invoke(char c, TrieNode node);
+        }
 
+        private interface DfsCallback {
+            /**
+             * Callback interface for dfs.
+             *
+             * @param c    current char of descending, 0 if not required
+             * @param node current node
+             */
+            void invoke(char c, TrieNode node);
+        }
+
+        /**
+         * General method for descending-ascening in trie.
+         *
+         * @param param string, describing descending path
+         * @param onChildNotFound Callback, invoked when child not was not found while descending
+         * @param onNodeReached Callback, invoked when node for `param' was found
+         * @param onRollback Callback, invoked when ascending back from found node
+         * @return true on success, false on failure (may be impiled by first two callbacks)
+         */
+        private boolean dfs(String param,
+                            DfsStoppableCallback onChildNotFound,
+                            DfsStoppableCallback onNodeReached,
+                            DfsCallback onRollback) {
+            return dfs(param, 0, onChildNotFound, onNodeReached, onRollback);
+        }
+
+        /**
+         * Implementation for descending-ascening in trie.
+         *
+         * @param param string, describing descending path
+         * @param pos current string pos
+         * @param onChildNotFound Callback, invoked when child not was not found while descending
+         * @param onNodeReached Callback, invoked when node for `param' was found
+         * @param onRollback Callback, invoked when ascending back from found node
+         * @return true on success, false on failure (may be impiled by first two callbacks)
+         */
+        private boolean dfs(String param, int pos,
+                            DfsStoppableCallback onChildNotFound,
+                            DfsStoppableCallback onNodeReached,
+                            DfsCallback onRollback) {
+            if (pos != param.length()) {
+                char nextChar = param.charAt(pos);
+                if (children[nextChar] == null) {
+                    if (onChildNotFound != null && !onChildNotFound.invoke(nextChar, this)) {
+                        return false;
+                    }
+                }
+                TrieNode child = children[nextChar];
+                if (!child.dfs(param, pos + 1, onChildNotFound, onNodeReached, onRollback)) {
+                    return false;
+                }
+                // Already success, not interrupting
+                if (onRollback != null)
+                    onRollback.invoke(nextChar, this);
+                return true;
+            } else {
+                return !(onNodeReached != null && !onNodeReached.invoke((char) 0, this));
+            }
+        }
     }
 }
