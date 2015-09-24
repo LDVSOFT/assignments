@@ -6,9 +6,9 @@ package ru.spbau.mit;
  */
 public abstract class Function1<T, R> {
     /**
-     * Invoke function
-     * @param x argument
-     * @return result
+     * Invoke function.
+     * @param x first argument
+     * @return evaluation result
      */
     public abstract R apply(T x);
 
