@@ -37,6 +37,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
     /**
      * Or takes this predicate, other one, and returns new one, that is equivalent to "this || g".
      * It uses lazy evaluation: if this argument returns true, the other one won't be evaluated.
+     *
      * @param g second predicate
      * @return new Or predicate
      */
@@ -54,6 +55,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
     /**
      * And takes this predicate, other one, and returns new one, that is equivalent to "this && g".
      * It uses lazy evaluation: if this argument returns false, the other one won't be evaluated.
+     *
      * @param g second predicate
      * @return new And predicate
      */
@@ -70,6 +72,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
 
     /**
      * Not takes this predicate, and returns new one, that is equivalent to "!this".
+     *
      * @return new Not predicate
      */
     public Predicate<T> not() {

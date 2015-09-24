@@ -2,9 +2,7 @@ package ru.spbau.mit;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PredicateTest {
     /*package*/ static final Predicate<Integer> ID = new Predicate<Integer>() {
@@ -69,7 +67,7 @@ public class PredicateTest {
     @Test
     public void testStationary() throws Exception {
         Object[] testing = {null, "abacaba", 2, 3.2, ID};
-        for (Object object: testing) {
+        for (Object object : testing) {
             assertTrue(Predicate.ALWAYS_TRUE.apply(object));
             assertFalse(Predicate.ALWAYS_FALSE.apply(object));
         }

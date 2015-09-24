@@ -2,10 +2,8 @@ package ru.spbau.mit;
 
 import org.junit.Test;
 
-import java.util.function.Function;
-
 import static java.lang.Math.max;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class Function2Test {
     /*package*/ static final Function2<Integer, Integer, Integer> MAX = new Function2<Integer, Integer, Integer>() {

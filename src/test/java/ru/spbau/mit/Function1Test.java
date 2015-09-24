@@ -2,7 +2,7 @@ package ru.spbau.mit;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class Function1Test {
     /*package*/ static final Function1<Integer, Integer> SQR = new Function1<Integer, Integer>() {

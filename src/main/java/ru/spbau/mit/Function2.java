@@ -7,6 +7,7 @@ package ru.spbau.mit;
 public abstract class Function2<T1, T2, R> {
     /**
      * Invoke function.
+     *
      * @param x first argument
      * @param y second argument
      * @return evaluation result
@@ -16,7 +17,8 @@ public abstract class Function2<T1, T2, R> {
     /**
      * Composes this function with another one.
      * Takes function g, and returns function g(f(x, y)).
-     * @param g another function
+     *
+     * @param g   another function
      * @param <E> type of result of g
      * @return composed function
      */
@@ -32,6 +34,7 @@ public abstract class Function2<T1, T2, R> {
     /**
      * First argument binding.
      * Return function with bound first argument.
+     *
      * @param x first argument
      * @return bound function
      */
@@ -47,6 +50,7 @@ public abstract class Function2<T1, T2, R> {
     /**
      * Second argument binding.
      * Return function with bound second argument.
+     *
      * @param y first argument
      * @return bound function
      */
@@ -63,6 +67,7 @@ public abstract class Function2<T1, T2, R> {
      * Carrying
      * Return new function, equivalent to this, but that takes one argument -- pair,
      * containing both arguments.
+     *
      * @return carried function
      */
     public Function1<Pair<T1, T2>, R> carry() {

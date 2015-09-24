@@ -5,16 +5,17 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CollectionsTest {
     private interface Comparator<T, R> {
         boolean compare(T x, R y);
     }
 
-    private static <T, R> void assertContainersEquals(Iterator<T> it1, Iterator<R> it2, Comparator<? super T, ? super R> test) {
+    private static <T, R> void assertContainersEquals(
+            Iterator<T> it1,
+            Iterator<R> it2,
+            Comparator<? super T, ? super R> test) {
         while (it1.hasNext()) {
             assertTrue(it2.hasNext());
             assertTrue(test.compare(it1.next(), it2.next()));
