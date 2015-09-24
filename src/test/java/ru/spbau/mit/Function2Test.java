@@ -50,19 +50,7 @@ public class Function2Test {
         Function1<Pair<Integer, Integer>, Integer> f1Carried = F1.carry();
         for (int i = -5; i != 6; i++)
             for (int j = -5; j != 6; j++) {
-                final int x = i;
-                final int y = j;
-                assertEquals(F1.apply(x, y), f1Carried.apply(new Pair<Integer, Integer>() {
-                    @Override
-                    public Integer getFirst() {
-                        return x;
-                    }
-
-                    @Override
-                    public Integer getSecond() {
-                        return y;
-                    }
-                }));
+                assertEquals(F1.apply(i, j), f1Carried.apply(new SimplePair<>(i, j)));
             }
     }
 }
