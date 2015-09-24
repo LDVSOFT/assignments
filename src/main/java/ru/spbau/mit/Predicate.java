@@ -25,6 +25,15 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
         }
     };
 
+    public static <T> Predicate<T> fromFunction1(final Function1<? super T, Boolean> f) {
+        return new Predicate<T>() {
+            @Override
+            public Boolean apply(T x) {
+                return f.apply(x);
+            }
+        };
+    }
+
     /**
      * Or takes this predicate, other one, and returns new one, that is equivalent to "this || g".
      * It uses lazy evaluation: if this argument returns true, the other one won't be evaluated.
