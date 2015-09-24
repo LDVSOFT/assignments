@@ -31,11 +31,10 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
      * @param g second predicate
      * @return new Or predicate
      */
-    //TODO Maybe the is more generic way for writing or/and with Lowest Common Ancestor
-    public Predicate<T> or(final Predicate<? super T> g) {
-        return new Predicate<T>() {
+    public <T2 extends T> Predicate<T2> or(final Predicate<? super T2> g) {
+        return new Predicate<T2>() {
             @Override
-            public Boolean apply(T x) {
+            public Boolean apply(T2 x) {
                 if (Predicate.this.apply(x))
                     return Boolean.TRUE;
                 return g.apply(x);
@@ -49,10 +48,10 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
      * @param g second predicate
      * @return new And predicate
      */
-    public Predicate<T> and(final Predicate<? super T> g) {
-        return new Predicate<T>() {
+    public <T2 extends T> Predicate<T2> and(final Predicate<? super T2> g) {
+        return new Predicate<T2>() {
             @Override
-            public Boolean apply(T x) {
+            public Boolean apply(T2 x) {
                 if (!Predicate.this.apply(x))
                     return Boolean.FALSE;
                 return g.apply(x);
