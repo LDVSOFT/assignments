@@ -10,19 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CollectionsTest {
-    /*package*/ static final Predicate<Integer> IS_ODD = new Predicate<Integer>() {
-        @Override
-        public Boolean apply(Integer x) {
-            return x % 2 == 1;
-        }
-    };
-    /*package*/ static final Predicate<Object> IS_STRING = new Predicate<Object>() {
-        @Override
-        public Boolean apply(Object x) {
-            return String.class.isInstance(x);
-        }
-    };
-
     private interface Comparator<T, R> {
         boolean compare(T x, R y);
     }
@@ -51,7 +38,7 @@ public class CollectionsTest {
     public void testFilter() throws Exception {
         Iterable<Integer> ints = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);
         Iterable<Integer> odd1 = Arrays.asList(1, 3, 5, 7);
-        Iterable<Integer> odd2 = Collections.filter(IS_ODD, ints);
+        Iterable<Integer> odd2 = Collections.filter(PredicateTest.IS_ODD, ints);
         assertContainersEquals(odd1.iterator(), odd2.iterator(), new Comparator<Integer, Integer>() {
             @Override
             public boolean compare(Integer x, Integer y) {
@@ -64,7 +51,7 @@ public class CollectionsTest {
     public void testTakeWhile() throws Exception {
         Iterable<Object> objs = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр", 2, 12, "123", "21");
         Iterable<Object> str1 = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр");
-        Iterable<Object> str2 = Collections.takeWhile(IS_STRING, objs);
+        Iterable<Object> str2 = Collections.takeWhile(PredicateTest.IS_STRING, objs);
         assertContainersEquals(str1.iterator(), str2.iterator(), new Comparator<Object, Object>() {
             @Override
             public boolean compare(Object x, Object y) {
@@ -77,7 +64,7 @@ public class CollectionsTest {
     public void testTakeUnless() throws Exception {
         Iterable<Object> objs = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр", 2, 12, "123", "21");
         Iterable<Object> str1 = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр");
-        Iterable<Object> str2 = Collections.takeUnless(IS_STRING.not(), objs);
+        Iterable<Object> str2 = Collections.takeUnless(PredicateTest.IS_STRING.not(), objs);
         assertContainersEquals(str1.iterator(), str2.iterator(), new Comparator<Object, Object>() {
             @Override
             public boolean compare(Object x, Object y) {

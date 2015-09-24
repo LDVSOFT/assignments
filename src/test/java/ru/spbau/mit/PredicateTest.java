@@ -27,6 +27,19 @@ public class PredicateTest {
                     return y != 0;
                 }
             }.carry());
+    /*package*/ static final Predicate<Integer> IS_ODD = new Predicate<Integer>() {
+        @Override
+        public Boolean apply(Integer x) {
+            return x % 2 == 1;
+        }
+    };
+    /*package*/ static final Predicate<Object> IS_STRING = new Predicate<Object>() {
+        @Override
+        public Boolean apply(Object x) {
+            return String.class.isInstance(x);
+        }
+    };
+
 
     @Test
     public void testOr() throws Exception {
