@@ -69,13 +69,7 @@ public abstract class Collections {
      * @return result collection
      */
     public static <T> Iterable<T> takeUnless(final Predicate<? super T> f, final Iterable<T> src) {
-        List<T> result = new ArrayList<>();
-        for (T element : src) {
-            if (f.apply(element))
-                break;
-            result.add(element);
-        }
-        return result;
+        return takeWhile(f.not(), src);
     }
 
     /**
