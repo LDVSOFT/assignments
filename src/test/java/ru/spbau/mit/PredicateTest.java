@@ -41,20 +41,36 @@ public class PredicateTest {
 
     @Test
     public void testOr() throws Exception {
-        Predicate<Pair<Integer, Integer>> or = FIRST.or(SECOND);
+        Predicate<Pair<Integer, Integer>> or1 = FIRST.or(SECOND);
         for (int i = 0; i != 2; i++)
             for (int j = 0; j != 2; j++) {
-                assertEquals(i + j > 0, or.apply(new SimplePair<>(i, j)));
+                assertEquals(i + j > 0, or1.apply(new SimplePair<>(i, j)));
             }
+
+        Predicate<Integer> or2 = Predicate.ALWAYS_TRUE.or(new Predicate<Integer>() {
+            @Override
+            public Boolean apply(Integer x) {
+                throw new IllegalArgumentException();
+            }
+        });
+        assertTrue(or2.apply(3));
     }
 
     @Test
     public void testAnd() throws Exception {
-        Predicate<Pair<Integer, Integer>> and = FIRST.and(SECOND);
+        Predicate<Pair<Integer, Integer>> and1 = FIRST.and(SECOND);
         for (int i = 0; i != 2; i++)
             for (int j = 0; j != 2; j++) {
-                assertEquals(i + j == 2, and.apply(new SimplePair<>(i, j)));
+                assertEquals(i + j == 2, and1.apply(new SimplePair<>(i, j)));
             }
+
+        Predicate<Integer> and2 = Predicate.ALWAYS_FALSE.and(new Predicate<Integer>() {
+            @Override
+            public Boolean apply(Integer x) {
+                throw new IllegalArgumentException();
+            }
+        });
+        assertFalse(and2.apply(3));
     }
 
     @Test
