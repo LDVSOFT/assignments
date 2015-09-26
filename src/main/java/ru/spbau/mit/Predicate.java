@@ -25,6 +25,12 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
         }
     };
 
+    /**
+     * Cast from Function1<T, Boolean> to Predicate<T>
+     * @param f function
+     * @param <T> type of predicate argument
+     * @return predicate
+     */
     public static <T> Predicate<T> fromFunction1(final Function1<? super T, Boolean> f) {
         return new Predicate<T>() {
             @Override
