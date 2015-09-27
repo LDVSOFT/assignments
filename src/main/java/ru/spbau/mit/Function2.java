@@ -64,17 +64,22 @@ public abstract class Function2<T1, T2, R> {
     }
 
     /**
-     * Carrying
-     * Return new function, equivalent to this, but that takes one argument -- pair,
-     * containing both arguments.
+     * Currying
+     * Return new function, equivalent to this, but that takes first argument,
+     * and returns new function, that takes the second one.
      *
-     * @return carried function
+     * @return curried function
      */
-    public Function1<Pair<T1, T2>, R> carry() {
-        return new Function1<Pair<T1, T2>, R>() {
+    public Function1<T1, Function1<T2, R>> curry() {
+        return new Function1<T1, Function1<T2, R>>() {
             @Override
-            public R apply(Pair<T1, T2> x) {
-                return Function2.this.apply(x.getFirst(), x.getSecond());
+            public Function1<T2, R> apply(final T1 x) {
+                return new Function1<T2, R>() {
+                    @Override
+                    public R apply(final T2 y) {
+                        return Function2.this.apply(x, y);
+                    }
+                };
             }
         };
     }
