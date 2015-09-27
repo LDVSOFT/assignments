@@ -44,11 +44,11 @@ public class Function2Test {
     }
 
     @Test
-    public void testCarry() throws Exception {
-        Function1<Pair<Integer, Integer>, Integer> f1Carried = F1.carry();
+    public void testCurry() throws Exception {
+        Function1<Integer, Function1<Integer, Integer>> f1Carried = F1.curry();
         for (int i = -5; i != 6; i++)
             for (int j = -5; j != 6; j++) {
-                assertEquals(F1.apply(i, j), f1Carried.apply(new SimplePair<>(i, j)));
+                assertEquals(F1.apply(i, j), f1Carried.apply(i).apply(j));
             }
     }
 }

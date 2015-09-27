@@ -53,8 +53,9 @@ public abstract class Collections {
     public static <T> Iterable<T> takeWhile(final Predicate<? super T> f, final Iterable<T> src) {
         List<T> result = new ArrayList<>();
         for (T element : src) {
-            if (!f.apply(element))
+            if (!f.apply(element)) {
                 break;
+            }
             result.add(element);
         }
         return result;
