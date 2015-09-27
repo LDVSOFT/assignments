@@ -51,9 +51,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
         return new Predicate<T2>() {
             @Override
             public Boolean apply(T2 x) {
-                if (Predicate.this.apply(x))
-                    return Boolean.TRUE;
-                return g.apply(x);
+                return Predicate.this.apply(x) || g.apply(x);
             }
         };
     }
@@ -69,9 +67,7 @@ public abstract class Predicate<T> extends Function1<T, Boolean> {
         return new Predicate<T2>() {
             @Override
             public Boolean apply(T2 x) {
-                if (!Predicate.this.apply(x))
-                    return Boolean.FALSE;
-                return g.apply(x);
+                return Predicate.this.apply(x) && g.apply(x);
             }
         };
     }
