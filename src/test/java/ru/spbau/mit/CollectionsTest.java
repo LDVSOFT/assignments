@@ -26,17 +26,17 @@ public class CollectionsTest {
 
     @Test
     public void testTakeWhile() throws Exception {
-        Iterable<Object> objs = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр", 2, 12, "123", "21");
+        Iterable<Object> objs = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр", null, 2, 12, "123", "21");
         ArrayList<Object> str1 = new ArrayList<>(Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр"));
-        ArrayList<Object> str2 = (ArrayList<Object>) Collections.takeWhile(PredicateTest.IS_STRING, objs);
+        ArrayList<Object> str2 = (ArrayList<Object>) Collections.takeWhile(PredicateTest.IS_NOT_NULL, objs);
         assertEquals(str1, str2);
     }
 
     @Test
     public void testTakeUnless() throws Exception {
-        Iterable<Object> objs = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр", 2, 12, "123", "21");
+        Iterable<Object> objs = Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр", null, 2, 12, "123", "21");
         ArrayList<Object> str1 = new ArrayList<>(Arrays.<Object>asList("Abc", "", "/dev/null", "Пётр"));
-        ArrayList<Object> str2 = (ArrayList<Object>) Collections.takeUnless(PredicateTest.IS_STRING.not(), objs);
+        ArrayList<Object> str2 = (ArrayList<Object>) Collections.takeUnless(PredicateTest.IS_NOT_NULL.not(), objs);
         assertEquals(str1, str2);
     }
 

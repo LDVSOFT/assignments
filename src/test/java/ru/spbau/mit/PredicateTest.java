@@ -29,10 +29,10 @@ public class PredicateTest {
             return x % 2 == 1;
         }
     };
-    /*package*/ static final Predicate<Object> IS_STRING = new Predicate<Object>() {
+    /*package*/ static final Predicate<Object> IS_NOT_NULL = new Predicate<Object>() {
         @Override
         public Boolean apply(Object x) {
-            return String.class.isInstance(x);
+            return x != null;
         }
     };
 
