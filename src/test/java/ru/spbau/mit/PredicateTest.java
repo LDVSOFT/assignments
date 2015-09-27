@@ -86,4 +86,17 @@ public class PredicateTest {
             assertFalse(Predicate.ALWAYS_FALSE.apply(object));
         }
     }
+
+    @Test
+    public void testFromFunction1() throws Exception {
+        Function1<Integer, Boolean> isOdd1 = new Function1<Integer, Boolean>() {
+            @Override
+            public Boolean apply(Integer x) {
+                return x % 2 == 1;
+            }
+        };
+        Predicate<Integer> isOdd2 = Predicate.fromFunction1(isOdd1);
+        for (int i = 0; i != 6; i++)
+            assertEquals(isOdd1.apply(i), isOdd2.apply(i));
+    }
 }
