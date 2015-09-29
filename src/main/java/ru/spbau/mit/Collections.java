@@ -36,8 +36,9 @@ public abstract class Collections {
     public static <T> Iterable<T> filter(final Predicate<? super T> f, final Iterable<T> src) {
         List<T> result = new ArrayList<>();
         for (T element : src) {
-            if (f.apply(element))
+            if (f.apply(element)) {
                 result.add(element);
+            }
         }
         return result;
     }
@@ -94,8 +95,9 @@ public abstract class Collections {
      * Fold from right implementation.
      */
     private static <T, R> R foldr(final Function2<? super T, ? super R, ? extends R> f, R x, final Iterator<T> src) {
-        if (!src.hasNext())
+        if (!src.hasNext()) {
             return x;
+        }
         T element = src.next();
         return f.apply(element, foldr(f, x, src));
     }
