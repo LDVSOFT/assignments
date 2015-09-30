@@ -4,19 +4,19 @@ import java.util.*;
 
 public class TreeSetImpl<E> extends AbstractSet<E> {
     private Comparator<E> comparator;
-    private TreeNode root = null;
+    private TreapNode root = null;
     private Random random = new Random(18031997);
 
     public TreeSetImpl(Comparator<E> comparator) {
         this.comparator = comparator;
     }
 
-    private NodePair split(TreeNode elem, E x, boolean allowEquals) {
-        NodePair result = new NodePair();
+    private TreapNodePair split(TreapNode elem, E x, boolean allowEquals) {
+        TreapNodePair result = new TreapNodePair();
         if (elem == null)
             return result;
 
-        NodePair temp = null;
+        TreapNodePair temp = null;
         int testedValue = allowEquals ? 1 : 0;
         if (comparator.compare(elem.x, x) < testedValue) {
             if (elem.right != null)
@@ -40,7 +40,7 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
         return result;
     }
 
-    private TreeNode merge(TreeNode l, TreeNode r) {
+    private TreapNode merge(TreapNode l, TreapNode r) {
         if (l == null)
             return r;
         if (r == null)
@@ -56,7 +56,7 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new TreeIterator();
+        return new TreapIterator();
     }
 
     @Override
@@ -66,11 +66,11 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
 
     @Override
     public boolean add(E e) {
-        NodePair p1 = split(root, e, false);
-        NodePair p2 = split(p1.r, e, true);
+        TreapNodePair p1 = split(root, e, false);
+        TreapNodePair p2 = split(p1.r, e, true);
         boolean result = false;
         if (p2.l == null) {
-            p2.l = new TreeNode(e);
+            p2.l = new TreapNode(e);
             result = true;
         }
         root = merge(p1.l, merge(p2.l, p2.r));
@@ -79,8 +79,8 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
 
     @Override
     public boolean contains(Object o) {
-        NodePair p1 = split(root, (E) o, false);
-        NodePair p2 = split(p1.r, (E) o, true);
+        TreapNodePair p1 = split(root, (E) o, false);
+        TreapNodePair p2 = split(p1.r, (E) o, true);
         boolean result = false;
         if (p2.l != null) {
             result = true;
@@ -91,8 +91,8 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
 
     @Override
     public boolean remove(Object o) {
-        NodePair p1 = split(root, (E) o, false);
-        NodePair p2 = split(p1.r, (E) o, true);
+        TreapNodePair p1 = split(root, (E) o, false);
+        TreapNodePair p2 = split(p1.r, (E) o, true);
         boolean result = false;
         if (p2.l != null) {
             result = true;
@@ -101,16 +101,16 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
         return result;
     }
 
-    private class TreeNode {
+    private class TreapNode {
         private E x;
         private int y = random.nextInt();
-        private TreeNode left = null;
-        private TreeNode right = null;
-        private TreeNode parent = null;
+        private TreapNode left = null;
+        private TreapNode right = null;
+        private TreapNode parent = null;
 
         private int size = 1;
 
-        private TreeNode(E x) {
+        private TreapNode(E x) {
             this.x = x;
         }
 
@@ -122,7 +122,7 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
                 size += right.size;
         }
 
-        private void setLeft(TreeNode child) {
+        private void setLeft(TreapNode child) {
             left = child;
             if (left != null) {
                 left.parent = this;
@@ -131,7 +131,7 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
         }
 
 
-        private void setRight(TreeNode child) {
+        private void setRight(TreapNode child) {
             right = child;
             if (right != null) {
                 right.parent = this;
@@ -140,18 +140,18 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
         }
     }
 
-    private class NodePair {
-        private TreeNode l = null;
-        private TreeNode r = null;
+    private class TreapNodePair {
+        private TreapNode l = null;
+        private TreapNode r = null;
 
-        private NodePair() {
+        private TreapNodePair() {
         }
     }
 
-    private class TreeIterator implements Iterator<E> {
-        private TreeNode lastNode = null;
+    private class TreapIterator implements Iterator<E> {
+        private TreapNode lastNode = null;
 
-        private TreeIterator() {
+        private TreapIterator() {
             if (node != null) {
                 while (node.left != null) {
                     node = node.left;
@@ -159,7 +159,7 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
             }
         }
 
-        private TreeNode node = root;
+        private TreapNode node = root;
 
         private void goToNext() {
             if (node.right != null) {
@@ -171,7 +171,7 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
             }
             boolean wasFromRight = true;
             while (node != null && wasFromRight) {
-                TreeNode prevNode = node;
+                TreapNode prevNode = node;
                 node = node.parent;
                 wasFromRight = node != null && node.right == prevNode;
             }
