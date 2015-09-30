@@ -5,7 +5,7 @@ import java.util.*;
 
 public abstract class TestsBase extends Assert {
 
-    protected Random random = new Random();
+    protected Random random = new Random(2011997);
 
     protected TreeSetImpl<Integer> buildSet() {
         return new TreeSetImpl<>(new Comparator<Integer>() {
