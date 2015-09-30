@@ -17,7 +17,7 @@ public abstract class Collections {
      * @param <R> type of element in result collection
      * @return result collection
      */
-    public static <T, R> Iterable<R> map(final Function1<? super T, R> f, final Iterable<T> src) {
+    public static <T, R> Iterable<R> map(final Function1<? super T, ? extends R> f, final Iterable<T> src) {
         List<R> result = new ArrayList<>();
         for (T element : src) {
             result.add(f.apply(element));
