@@ -89,6 +89,18 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
         return result;
     }
 
+    @Override
+    public boolean remove(Object o) {
+        NodePair p1 = split(root, (E) o, false);
+        NodePair p2 = split(p1.r, (E) o, true);
+        boolean result = false;
+        if (p2.l != null) {
+            result = true;
+        }
+        root = merge(p1.l, p2.r);
+        return result;
+    }
+
     private class TreeNode {
         private E x;
         private int y = random.nextInt();
@@ -137,6 +149,8 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
     }
 
     private class TreeIterator implements Iterator<E> {
+        private TreeNode lastNode = null;
+
         private TreeIterator() {
             if (node != null) {
                 while (node.left != null) {
@@ -164,6 +178,14 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
         }
 
         @Override
+        public void remove() {
+            if (lastNode == null)
+                throw new IllegalStateException();
+            TreeSetImpl.this.remove(lastNode.x);
+            lastNode = null;
+        }
+
+        @Override
         public boolean hasNext() {
             return node != null;
         }
@@ -173,8 +195,11 @@ public class TreeSetImpl<E> extends AbstractSet<E> {
             if (node == null)
                 throw new NoSuchElementException();
             E result = node.x;
+            lastNode = node;
             goToNext();
             return result;
         }
+
+
     }
 }
