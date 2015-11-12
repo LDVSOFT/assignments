@@ -123,3 +123,13 @@
     то после таймаута необходимо закончить раунд
   - `dictionaryFilename` - абсолютный путь до файла с вопросами. Файл состоит из
     множества строк, каждая из которых имеет формат `<вопрос>;<ответ>`
+
+## Полезности
+
+- [Как определять и создавать потоки](http://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html)
+- [Про synchronized методы](https://docs.oracle.com/javase/tutorial/essential/concurrency/syncmeth.html)
+- [Про synchronized на конкретном объекте](https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html)
+- [Про wait и notify](https://docs.oracle.com/javase/tutorial/essential/concurrency/guardmeth.html)
+- [Про InterruptedException](http://www.ibm.com/developerworks/library/j-jtp05236/index.html)
+- [Документация класса java.util.Collections](http://docs.oracle.com/javase/7/docs/api/java/util/Collections.html) (обратите особое внимание на методы вида `synchronzedSomething`)
+- [Документация класса java.lang.Class](http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html)
