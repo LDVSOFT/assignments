@@ -14,15 +14,18 @@ import java.util.*;
 public class TestQuizGame extends Assert {
     @Test(timeout=1000)
     public void testSimpleSuccess() throws Exception {
+        System.err.printf("STARTED\n");
         doBasicSingleConnectionTest(
                 ScriptItem.of("!start", "New round started: Who was the imaginary love of Don Quixote? (8 letters)"),
                 ScriptItem.of("Dulcinea", "The winner is 0"),
                 ScriptItem.of(null, "New round started: Who was the wife of Othello? (9 letters)")
         );
+        System.err.printf("FINISHED\n");
     }
 
     @Test(timeout=10000)
     public void testSimpleFail() throws Exception {
+        System.err.printf("STARTED\n");
         doBasicSingleConnectionTest(
                 ScriptItem.of("!start", "New round started: Who was the imaginary love of Don Quixote? (8 letters)"),
                 ScriptItem.of("Maria", "Wrong try"),
@@ -32,10 +35,12 @@ public class TestQuizGame extends Assert {
                 ScriptItem.of("Natasha", "Wrong try"),
                 ScriptItem.of(null, "Nobody guessed, the word was Dulcinea")
         );
+        System.err.printf("FINISHED\n");
     }
 
     @Test(timeout=10000)
     public void testSimpleStop() throws Exception {
+        System.err.printf("STARTED\n");
         doBasicSingleConnectionTest(
                 ScriptItem.of("!start", "New round started: Who was the imaginary love of Don Quixote? (8 letters)"),
                 ScriptItem.of("Maria", "Wrong try"),
@@ -46,6 +51,7 @@ public class TestQuizGame extends Assert {
                 ScriptItem.of("!start", "New round started: Who was the wife of Othello? (9 letters)"),
                 ScriptItem.of("!stop", "Game has been stopped by 0")
         );
+        System.err.printf("FINISHED\n");
     }
 
     @Test(timeout=10000)
@@ -113,6 +119,7 @@ public class TestQuizGame extends Assert {
         private volatile int currentIndex = 0;
         private Throwable error = null;
         private boolean wasId = false;
+        private String id;
 
         public ConnectionWithTestScript(ScriptItem... scriptItems) {
             this.sequence = Arrays.asList(scriptItems);
@@ -120,6 +127,8 @@ public class TestQuizGame extends Assert {
 
         @Override
         public synchronized void send(String message) {
+            System.err.printf("Bot %s got message \"%s\"\n", id, message);
+            System.err.flush();
             try {
                 doSend(message);
             } catch (Throwable t) {
@@ -132,6 +141,7 @@ public class TestQuizGame extends Assert {
             if (!wasId) {
                 assertTrue(Integer.parseInt(message) >= 0);
                 wasId = true;
+                id = message;
                 return;
             }
 
@@ -144,14 +154,19 @@ public class TestQuizGame extends Assert {
         @Override
         public synchronized String receive(long timeout) throws InterruptedException {
             try {
-                return doReceive();
+                String message = doReceive();
+                if (message != null) {
+                    System.err.printf("Bot %s sent message \"%s\"\n", id, message);
+                    System.err.flush();
+                }
+                return message;
             } catch (Throwable t) {
                 end(t);
                 throw t;
             }
         }
 
-        private String doReceive() {
+        private String  doReceive() {
             checkNotDone();
             ScriptItem scriptItem = sequence.get(currentIndex);
             String msgToReturn = scriptItem.request;
