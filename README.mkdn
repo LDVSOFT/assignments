@@ -1,6 +1,6 @@
 # ДЗ03 - Сервер текстовых игр
 
-**Дедлайн**: 2015/11/16 23:59
+**Дедлайн**: 2015/11/17 23:59
 
 Это задание состоит из нескольких частей, которые лучше выполнять
 последовательно.
@@ -72,7 +72,9 @@
     параметр. Eсли значение является строкой, содержащей целое
     число, то тип параметра сеттера - `int`, в противном случае - `String`.
 - Каждому новому соединению присвается уникальный идентификатор (для унификации
-  в нашем случае это просто последовательные натуральные числа, начиная с 0)
+  в нашем случае это просто последовательные натуральные числа, начиная с 0).
+  Сервер сам сразу же высылает клиенту идентификатор, т.е. первое сообщение всегда
+  приходит от сервера.
 - Метод `sendTo`, соответственно, отправляет сообщение клиенту с указанным `id`
 - Метод `broadcast` рассылает указанное сообщение всем активным клиентам
 - Для каждого нового соединения должен быть вызван метод плагина
@@ -121,3 +123,13 @@
     то после таймаута необходимо закончить раунд
   - `dictionaryFilename` - абсолютный путь до файла с вопросами. Файл состоит из
     множества строк, каждая из которых имеет формат `<вопрос>;<ответ>`
+
+## Полезности
+
+- [Как определять и создавать потоки](http://docs.oracle.com/javase/tutorial/essential/concurrency/runthread.html)
+- [Про synchronized методы](https://docs.oracle.com/javase/tutorial/essential/concurrency/syncmeth.html)
+- [Про synchronized на конкретном объекте](https://docs.oracle.com/javase/tutorial/essential/concurrency/locksync.html)
+- [Про wait и notify](https://docs.oracle.com/javase/tutorial/essential/concurrency/guardmeth.html)
+- [Про InterruptedException](http://www.ibm.com/developerworks/library/j-jtp05236/index.html)
+- [Документация класса java.util.Collections](http://docs.oracle.com/javase/7/docs/api/java/util/Collections.html) (обратите особое внимание на методы вида `synchronzedSomething`)
+- [Документация класса java.lang.Class](http://docs.oracle.com/javase/7/docs/api/java/lang/Class.html)
