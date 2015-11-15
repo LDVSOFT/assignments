@@ -1,8 +1,8 @@
 package ru.spbau.mit;
 
 import java.util.Random;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class SumTwoNumbersGame implements Game {
@@ -12,7 +12,7 @@ public class SumTwoNumbersGame implements Game {
 
     protected GameServer gameServer;
     protected int i, j;
-    protected ReadWriteLock lock = new ReentrantReadWriteLock();
+    protected Lock lockData = new ReentrantLock();
     protected Random random = new Random(0xDEADBEEF);
 
     public SumTwoNumbersGame(GameServer server) {
@@ -21,29 +21,24 @@ public class SumTwoNumbersGame implements Game {
     }
 
     protected void startRound() {
-        lock.writeLock().lock();
-        try {
-            i = random.nextInt(BOUND);
-            j = random.nextInt(BOUND);
-            gameServer.broadcast(String.format("%d %d", i, j));
-        } finally {
-            lock.writeLock().unlock();
-        }
+        i = random.nextInt(BOUND);
+        j = random.nextInt(BOUND);
+        gameServer.broadcast(String.format("%d %d", i, j));
     }
 
     @Override
     public void onPlayerConnected(String id) {
-        lock.readLock().lock();
+        lockData.lock();
         try {
             gameServer.sendTo(id, String.format("%d %d", i, j));
         } finally {
-            lock.readLock().unlock();
+            lockData.unlock();
         }
     }
 
     @Override
     public void onPlayerSentMsg(String id, String msg) {
-        lock.readLock().lock();
+        lockData.lock();
         boolean answered = false;
         try {
             if (!msg.matches("\\d+")) {
@@ -56,11 +51,11 @@ public class SumTwoNumbersGame implements Game {
             } else {
                 gameServer.sendTo(id, WRONG);
             }
-        } finally {
-            lock.readLock().unlock();
-        }
 
-        if (answered)
-            startRound();
+            if (answered)
+                startRound();
+        } finally {
+            lockData.unlock();
+        }
     }
 }
