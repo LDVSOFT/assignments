@@ -17,12 +17,14 @@ public class GameServerImpl implements GameServer {
             game = (Game) gameClass.getConstructor(GameServer.class).newInstance(this);
             for (String propName: properties.stringPropertyNames()) {
                 String value = properties.getProperty(propName);
+                propName = Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
+                String setterName = "set" + propName;
                 if (value.matches("\\d+")) {
                     // int setter
-                    gameClass.getMethod("set" + propName, Integer.TYPE).invoke(game, Integer.decode(value));
+                    gameClass.getMethod(setterName, Integer.TYPE).invoke(game, Integer.decode(value));
                 } else {
                     // String setter
-                    gameClass.getMethod("set" + propName, String.class).invoke(game, value);
+                    gameClass.getMethod(setterName, String.class).invoke(game, value);
                 }
             }
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
@@ -33,7 +35,7 @@ public class GameServerImpl implements GameServer {
 
     @Override
     public void accept(final Connection connection) {
-        final String id = Integer.toString(clients.size() + 1);
+        final String id = Integer.toString(clients.size());
         lock.writeLock().lock();
         try {
             clients.put(id, connection);
