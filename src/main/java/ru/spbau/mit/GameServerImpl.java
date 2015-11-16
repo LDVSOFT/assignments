@@ -48,13 +48,15 @@ public class GameServerImpl implements GameServer {
             @Override
             public void run() {
                 while (! Thread.interrupted()) {
-                    if (connection.isClosed())
-                        return;
-                    try {
-                        String message = connection.receive(0);
-                        game.onPlayerSentMsg(id, message);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                    synchronized (connection) {
+                        if (connection.isClosed())
+                            return;
+                        try {
+                            String message = connection.receive(0);
+                            game.onPlayerSentMsg(id, message);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
                 }
             }
