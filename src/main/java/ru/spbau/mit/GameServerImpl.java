@@ -39,11 +39,11 @@ public class GameServerImpl implements GameServer {
         lock.writeLock().lock();
         try {
             clients.put(id, connection);
+            connection.send(id);
+            game.onPlayerConnected(id);
         } finally {
             lock.writeLock().unlock();
         }
-        connection.send(id);
-        game.onPlayerConnected(id);
         new Thread(new Runnable() {
             @Override
             public void run() {
