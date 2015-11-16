@@ -78,10 +78,6 @@ public class QuizGame implements Game {
 
     @Override
     public void onPlayerSentMsg(String id, String msg) {
-        if (msg == null) {
-            return;
-        }
-
         lockMessages.lock();
         try {
             if (msg.length() != 0 && msg.charAt(0) == '!') {
