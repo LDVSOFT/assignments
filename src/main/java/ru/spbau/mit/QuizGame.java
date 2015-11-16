@@ -1,11 +1,11 @@
 package ru.spbau.mit;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.lang.String.format;
 
@@ -145,6 +145,7 @@ public class QuizGame implements Game {
         gameServer.broadcast(format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
         runTicker();
     }
+
     protected void runTicker() {
         new Thread(new Runnable() {
             final int task = tickerTaskId;

@@ -59,7 +59,7 @@ public class GameServerImpl implements GameServer {
         try {
             Class<?> gameClass = Class.forName(gameClassName);
             game = (Game) gameClass.getConstructor(GameServer.class).newInstance(this);
-            for (String propName: properties.stringPropertyNames()) {
+            for (String propName : properties.stringPropertyNames()) {
                 String value = properties.getProperty(propName);
                 propName = Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
                 String setterName = "set" + propName;
