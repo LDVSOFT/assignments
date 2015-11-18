@@ -110,12 +110,21 @@ public class TestQuizGame extends Assert {
 
     private static class ConnectionWithTestScript extends AbstractConnection {
         private final List<ScriptItem> sequence;
-        private volatile int currentIndex = 0;
+        private int currentIndex = 0;
         private Throwable error = null;
         private boolean wasId = false;
+        private final Queue<String> messagesToSend = new ArrayDeque<>();
 
         public ConnectionWithTestScript(ScriptItem... scriptItems) {
             this.sequence = Arrays.asList(scriptItems);
+            if (!sequence.isEmpty()) {
+                addMessageToSend(sequence.get(0).request);
+            }
+        }
+
+        private void addMessageToSend(String request) {
+            if (request == null) return;
+            messagesToSend.add(request);
         }
 
         @Override
@@ -144,7 +153,17 @@ public class TestQuizGame extends Assert {
         @Override
         public synchronized String receive(long timeout) throws InterruptedException {
             try {
-                return doReceive();
+                String result = doReceive();
+
+                if (timeout == 0) {
+                    while (result == null) {
+                        wait();
+                        result = doReceive();
+                    }
+                }
+
+                // Pretend that we've waited
+                return result;
             } catch (Throwable t) {
                 end(t);
                 throw t;
@@ -153,14 +172,15 @@ public class TestQuizGame extends Assert {
 
         private String doReceive() {
             checkNotDone();
-            ScriptItem scriptItem = sequence.get(currentIndex);
-            String msgToReturn = scriptItem.request;
 
-            if (scriptItem.response == null) {
-                increaseIndex();
+            while (!messagesToSend.isEmpty()) {
+                String next = messagesToSend.poll();
+                if (next != null) {
+                    return next;
+                }
             }
 
-            return msgToReturn;
+            return null;
         }
 
         private void end(Throwable t) {
@@ -181,6 +201,8 @@ public class TestQuizGame extends Assert {
                 synchronized (this) {
                     notifyAll();
                 }
+            } else {
+                addMessageToSend(sequence.get(currentIndex).request);
             }
         }
 
