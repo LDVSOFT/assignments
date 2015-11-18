@@ -22,6 +22,8 @@ public class TestGameServer {
             server.accept(connection);
         }
 
+        Thread.sleep(1000);
+
         Set<String> ids = new HashSet<String>();
         for (TestConnection c: connections) {
             c.close();
