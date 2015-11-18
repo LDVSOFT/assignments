@@ -53,7 +53,7 @@ public class QuizGame implements Game {
     protected int currentProgress;
     protected boolean isRunning = false;
 
-    protected int tickerTaskId = 0;
+    protected long lastEvent = 0;
 
     public QuizGame(GameServer server) {
         gameServer = server;
@@ -80,30 +80,27 @@ public class QuizGame implements Game {
     public void onPlayerSentMsg(String id, String msg) {
         lockMessages.lock();
         try {
-            if (msg.length() != 0 && msg.charAt(0) == '!') {
-                //Commands
-                switch (msg) {
-                    case MESSAGE_START:
-                        if (!isRunning) {
-                            startGame(id);
-                        }
-                        break;
+            switch (msg) {
+                case MESSAGE_START:
+                    if (!isRunning) {
+                        startGame(id);
+                    }
+                    break;
 
-                    case MESSAGE_STOP:
-                        if (isRunning) {
-                            stopGame(id);
-                        }
-                        break;
-                }
-                return;
-            }
+                case MESSAGE_STOP:
+                    if (isRunning) {
+                        stopGame(id);
+                    }
+                    break;
 
-            if (msg.equals(questions.get(currentQuestion).answer)) {
-                stopTicker();
-                gameServer.broadcast(String.format(FORMAT_WINNER, id));
-                startRound();
-            } else {
-                gameServer.sendTo(id, FORMAT_WRONG);
+                default:
+                    if (msg.equals(questions.get(currentQuestion).answer)) {
+                        stopTicker();
+                        gameServer.broadcast(String.format(FORMAT_WINNER, id));
+                        startRound();
+                    } else {
+                        gameServer.sendTo(id, FORMAT_WRONG);
+                    }
             }
         } finally {
             lockMessages.unlock();
@@ -147,8 +144,9 @@ public class QuizGame implements Game {
     }
 
     protected void runTicker() {
+        lastEvent = System.currentTimeMillis();
         new Thread(new Runnable() {
-            final int task = tickerTaskId;
+            final long startLastEvent = lastEvent;
 
             @Override
             public void run() {
@@ -159,8 +157,7 @@ public class QuizGame implements Game {
                 }
                 lockMessages.lock();
                 try {
-                    if (tickerTaskId == task) {
-                        tickerTaskId += 1;
+                    if (startLastEvent == lastEvent) {
                         tickGame();
                     }
                 } finally {
@@ -171,7 +168,7 @@ public class QuizGame implements Game {
     }
 
     protected void stopTicker() {
-        tickerTaskId += 1;
+        lastEvent = 0;
     }
 
     protected void tickGame() {
