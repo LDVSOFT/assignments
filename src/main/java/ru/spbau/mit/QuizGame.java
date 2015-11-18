@@ -61,12 +61,12 @@ public class QuizGame implements Game {
 
     @Override
     public void onPlayerConnected(String id) {
-        if (!isRunning) {
-            return;
-        }
-
         lockMessages.lock();
         try {
+            if (!isRunning) {
+                return;
+            }
+
             gameServer.sendTo(id, String.format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
             if (currentProgress != 0) {
                 gameServer.sendTo(id, String.format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, currentProgress)));
