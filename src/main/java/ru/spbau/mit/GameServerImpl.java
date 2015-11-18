@@ -31,25 +31,23 @@ public class GameServerImpl implements GameServer {
         @Override
         public void run() {
             while (!Thread.interrupted()) {
-                synchronized (connection) {
-                    if (connection.isClosed())
-                        return;
+                if (connection.isClosed())
+                    return;
 
-                    synchronized (toSend) {
-                        while (!toSend.isEmpty()) {
-                            connection.send(toSend.poll());
-                            if (connection.isClosed())
-                                return;
-                        }
+                synchronized (toSend) {
+                    while (!toSend.isEmpty()) {
+                        connection.send(toSend.poll());
+                        if (connection.isClosed())
+                            return;
                     }
-                    try {
-                        String message = connection.receive(TIMEOUT);
-                        if (message != null) {
-                            game.onPlayerSentMsg(id, message);
-                        }
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                }
+                try {
+                    String message = connection.receive(TIMEOUT);
+                    if (message != null) {
+                        game.onPlayerSentMsg(id, message);
                     }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
             }
         }
@@ -81,9 +79,9 @@ public class GameServerImpl implements GameServer {
 
     @Override
     public void accept(final Connection connection) {
-        final String id = Integer.toString(clients.size());
         lock.writeLock().lock();
         try {
+            final String id = Integer.toString(clients.size());
             ConnectionHandler handler = new ConnectionHandler(id, connection);
             clients.put(id, handler);
             connection.send(id);
