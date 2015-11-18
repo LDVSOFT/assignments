@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static java.lang.String.format;
-
 
 public class QuizGame implements Game {
 
@@ -18,6 +16,8 @@ public class QuizGame implements Game {
     public static final String FORMAT_WRONG = "Wrong try";
     public static final String FORMAT_STOP = "Game has been stopped by %s";
     public static final String FORMAT_NOBODY = "Nobody guessed, the word was %s";
+    public static final String MESSAGE_START = "!start";
+    public static final String MESSAGE_STOP = "!stop";
 
     public void setDictionaryFilename(String dictionaryFilename) {
         this.dictionaryFilename = dictionaryFilename;
@@ -67,9 +67,9 @@ public class QuizGame implements Game {
 
         lockMessages.lock();
         try {
-            gameServer.sendTo(id, format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
+            gameServer.sendTo(id, String.format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
             for (int i = 1; i <= currentProgress; ++i) {
-                gameServer.sendTo(id, format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, i)));
+                gameServer.sendTo(id, String.format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, i)));
             }
         } finally {
             lockMessages.unlock();
@@ -83,13 +83,13 @@ public class QuizGame implements Game {
             if (msg.length() != 0 && msg.charAt(0) == '!') {
                 //Commands
                 switch (msg) {
-                    case "!start":
+                    case MESSAGE_START:
                         if (!isRunning) {
                             startGame(id);
                         }
                         break;
 
-                    case "!stop":
+                    case MESSAGE_STOP:
                         if (isRunning) {
                             stopGame(id);
                         }
@@ -98,22 +98,19 @@ public class QuizGame implements Game {
                 return;
             }
 
-            boolean answered = false;
             if (msg.equals(questions.get(currentQuestion).answer)) {
-                answered = true;
                 stopTicker();
-                gameServer.broadcast(format(FORMAT_WINNER, id));
+                gameServer.broadcast(String.format(FORMAT_WINNER, id));
+                startRound();
             } else {
                 gameServer.sendTo(id, FORMAT_WRONG);
             }
-            if (answered)
-                startRound();
         } finally {
             lockMessages.unlock();
         }
     }
 
-    protected void startGame(String id) {
+    protected void readQuestions() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(dictionaryFilename));
             String line;
@@ -125,24 +122,27 @@ public class QuizGame implements Game {
         } catch (IOException e) {
             throw new RuntimeException("Can't read questions", e);
         }
-//        currentQuestion = -1;
+    }
+
+    protected void startGame(String id) {
+        readQuestions();
         isRunning = true;
         startRound();
     }
 
     protected void stopGame(String id) {
         stopTicker();
-        gameServer.broadcast(format(FORMAT_STOP, id));
+        gameServer.broadcast(String.format(FORMAT_STOP, id));
         isRunning = false;
     }
 
     protected void startRound() {
-        ++currentQuestion;
+        currentQuestion++;
         if (currentQuestion == questions.size()) {
             currentQuestion = 0;
         }
         currentProgress = 0;
-        gameServer.broadcast(format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
+        gameServer.broadcast(String.format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
         runTicker();
     }
 
@@ -177,10 +177,10 @@ public class QuizGame implements Game {
     protected void tickGame() {
         currentProgress += 1;
         if (currentProgress > maxLettersToOpen) {
-            gameServer.broadcast(format(FORMAT_NOBODY, questions.get(currentQuestion).answer));
+            gameServer.broadcast(String.format(FORMAT_NOBODY, questions.get(currentQuestion).answer));
             startRound();
         } else {
-            gameServer.broadcast(format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, currentProgress)));
+            gameServer.broadcast(String.format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, currentProgress)));
             runTicker();
         }
     }

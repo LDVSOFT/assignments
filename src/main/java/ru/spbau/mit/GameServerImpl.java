@@ -7,10 +7,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class GameServerImpl implements GameServer {
-    public static final int TIMEOUT = 100;
-    protected Game game;
-    protected Map<String, ConnectionHandler> clients = new Hashtable<>();
-    protected ReadWriteLock lock = new ReentrantReadWriteLock();
+    protected static final int TIMEOUT = 100;
+    protected final Game game;
+    protected final Map<String, ConnectionHandler> clients = new Hashtable<>();
+    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private class ConnectionHandler implements Runnable {
         private final Queue<String> toSend = new ArrayDeque<>();
@@ -48,11 +48,15 @@ public class GameServerImpl implements GameServer {
                             game.onPlayerSentMsg(id, message);
                         }
                     } catch (InterruptedException e) {
-                        //Well, it sent nothing
+                        Thread.currentThread().interrupt();
                     }
                 }
             }
         }
+    }
+
+    protected String getSetterName(String propName) {
+        return "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
     }
 
     public GameServerImpl(String gameClassName, Properties properties) {
@@ -61,13 +65,11 @@ public class GameServerImpl implements GameServer {
             game = (Game) gameClass.getConstructor(GameServer.class).newInstance(this);
             for (String propName : properties.stringPropertyNames()) {
                 String value = properties.getProperty(propName);
-                propName = Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
-                String setterName = "set" + propName;
-                if (value.matches("\\d+")) {
-                    // int setter
-                    gameClass.getMethod(setterName, Integer.TYPE).invoke(game, Integer.decode(value));
-                } else {
-                    // String setter
+                String setterName = getSetterName(propName);
+                try {
+                    int val = Integer.decode(value);
+                    gameClass.getMethod(setterName, Integer.TYPE).invoke(game, val);
+                } catch (NumberFormatException ignore) {
                     gameClass.getMethod(setterName, String.class).invoke(game, value);
                 }
             }

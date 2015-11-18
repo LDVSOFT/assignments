@@ -13,7 +13,6 @@ public class HelloWorldServer implements Server {
                 connection.send(MESSAGE);
                 connection.close();
             }
-        }
-        ).start();
+        }).start();
     }
 }
