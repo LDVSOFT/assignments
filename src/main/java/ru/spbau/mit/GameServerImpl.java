@@ -31,23 +31,25 @@ public class GameServerImpl implements GameServer {
         @Override
         public void run() {
             while (!Thread.interrupted()) {
-                if (connection.isClosed())
-                    return;
+                synchronized (connection) {
+                    if (connection.isClosed())
+                        return;
 
-                synchronized (toSend) {
-                    while (!toSend.isEmpty()) {
-                        connection.send(toSend.poll());
-                        if (connection.isClosed())
-                            return;
+                    synchronized (toSend) {
+                        while (!toSend.isEmpty()) {
+                            connection.send(toSend.poll());
+                            if (connection.isClosed())
+                                return;
+                        }
                     }
-                }
-                try {
-                    String message = connection.receive(TIMEOUT);
-                    if (message != null) {
-                        game.onPlayerSentMsg(id, message);
+                    try {
+                        String message = connection.receive(TIMEOUT);
+                        if (message != null) {
+                            game.onPlayerSentMsg(id, message);
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
                 }
             }
         }
