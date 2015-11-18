@@ -75,6 +75,8 @@ public class TestSumTwoNumbersGame {
                 default:
                     break;
             }
+
+            notify();
         }
 
         @Override
