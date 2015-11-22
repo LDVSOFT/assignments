@@ -86,10 +86,12 @@ public class GameServerImpl implements GameServer {
     public void accept(final Connection connection) {
         lock.writeLock().lock();
         try {
-            final String id = Integer.toString(clients.size());
+            String id = Integer.toString(clients.size());
             ConnectionHandler handler = new ConnectionHandler(id, connection);
+
             clients.put(id, handler);
             connection.send(id);
+
             game.onPlayerConnected(id);
             new Thread(handler).start();
         } finally {
