@@ -57,23 +57,28 @@ public class GameServerImpl implements GameServer {
         return "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
     }
 
-    public GameServerImpl(String gameClassName, Properties properties) {
+    protected static Integer tryParseInt(String str) {
         try {
-            Class<?> gameClass = Class.forName(gameClassName);
-            game = (Game) gameClass.getConstructor(GameServer.class).newInstance(this);
-            for (String propName : properties.stringPropertyNames()) {
-                String value = properties.getProperty(propName);
-                String setterName = getSetterName(propName);
-                try {
-                    int val = Integer.decode(value);
-                    gameClass.getMethod(setterName, Integer.TYPE).invoke(game, val);
-                } catch (NumberFormatException ignore) {
-                    gameClass.getMethod(setterName, String.class).invoke(game, value);
-                }
+            return Integer.decode(str);
+        } catch (NumberFormatException ignore) {
+            return null;
+        }
+    }
+
+    public GameServerImpl(String gameClassName, Properties properties)
+            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+            IllegalAccessException, InstantiationException {
+        Class<?> gameClass = Class.forName(gameClassName);
+        game = (Game) gameClass.getConstructor(GameServer.class).newInstance(this);
+        for (String propName : properties.stringPropertyNames()) {
+            String value = properties.getProperty(propName);
+            String setterName = getSetterName(propName);
+            Integer intValue = tryParseInt(value);
+            if (intValue != null) {
+                gameClass.getMethod(setterName, Integer.TYPE).invoke(game, intValue);
+            } else {
+                gameClass.getMethod(setterName, String.class).invoke(game, value);
             }
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException | ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new RuntimeException(String.format("Cannot create and setup %s instance.", gameClassName), e);
         }
     }
 
