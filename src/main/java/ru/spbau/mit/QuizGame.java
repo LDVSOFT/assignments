@@ -68,8 +68,8 @@ public class QuizGame implements Game {
         lockMessages.lock();
         try {
             gameServer.sendTo(id, String.format(FORMAT_NEW_ROUND, questions.get(currentQuestion).question, questions.get(currentQuestion).answer.length()));
-            for (int i = 1; i <= currentProgress; ++i) {
-                gameServer.sendTo(id, String.format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, i)));
+            if (currentProgress != 0) {
+                gameServer.sendTo(id, String.format(FORMAT_CURRENT_PREFIX, questions.get(currentQuestion).answer.substring(0, currentProgress)));
             }
         } finally {
             lockMessages.unlock();
