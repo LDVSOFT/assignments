@@ -10,14 +10,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class QuizGame implements Game {
 
-    public static final String FORMAT_NEW_ROUND = "New round started: %s (%d letters)";
-    public static final String FORMAT_CURRENT_PREFIX = "Current prefix is %s";
-    public static final String FORMAT_WINNER = "The winner is %s";
-    public static final String FORMAT_WRONG = "Wrong try";
-    public static final String FORMAT_STOP = "Game has been stopped by %s";
-    public static final String FORMAT_NOBODY = "Nobody guessed, the word was %s";
-    public static final String MESSAGE_START = "!start";
-    public static final String MESSAGE_STOP = "!stop";
+    protected static final String FORMAT_NEW_ROUND = "New round started: %s (%d letters)";
+    protected static final String FORMAT_CURRENT_PREFIX = "Current prefix is %s";
+    protected static final String FORMAT_WINNER = "The winner is %s";
+    protected static final String FORMAT_WRONG = "Wrong try";
+    protected static final String FORMAT_STOP = "Game has been stopped by %s";
+    protected static final String FORMAT_NOBODY = "Nobody guessed, the word was %s";
+    protected static final String MESSAGE_START = "!start";
+    protected static final String MESSAGE_STOP = "!stop";
 
     public void setDictionaryFilename(String dictionaryFilename) {
         this.dictionaryFilename = dictionaryFilename;
