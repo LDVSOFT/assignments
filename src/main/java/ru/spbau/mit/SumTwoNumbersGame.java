@@ -41,7 +41,7 @@ public class SumTwoNumbersGame implements Game {
         lockData.lock();
         boolean answered = false;
         try {
-            if (!msg.matches("\\d+")) {
+            if (!msg.matches("-?\\d+")) {
                 return;
             }
             int answer = Integer.decode(msg);
