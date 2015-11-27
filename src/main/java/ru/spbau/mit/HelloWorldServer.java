@@ -3,7 +3,7 @@ package ru.spbau.mit;
 
 public class HelloWorldServer implements Server {
 
-    protected static final String MESSAGE = "Hello world";
+    private static final String MESSAGE = "Hello world";
 
     @Override
     public void accept(final Connection connection) {

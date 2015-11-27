@@ -7,10 +7,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class GameServerImpl implements GameServer {
-    protected static final int TIMEOUT = 100;
-    protected final Game game;
-    protected final Map<String, ConnectionHandler> clients = new Hashtable<>();
-    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private static final int TIMEOUT = 100;
+    private final Game game;
+    private final Map<String, ConnectionHandler> clients = new Hashtable<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private class ConnectionHandler implements Runnable {
         private final Queue<String> toSend = new ArrayDeque<>();
@@ -53,11 +53,11 @@ public class GameServerImpl implements GameServer {
         }
     }
 
-    protected String getSetterName(String propName) {
+    private String getSetterName(String propName) {
         return "set" + Character.toUpperCase(propName.charAt(0)) + propName.substring(1);
     }
 
-    protected static Integer tryParseInt(String str) {
+    private static Integer tryParseInt(String str) {
         try {
             return Integer.decode(str);
         } catch (NumberFormatException ignore) {

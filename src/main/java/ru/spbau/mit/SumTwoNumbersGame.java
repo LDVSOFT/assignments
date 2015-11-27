@@ -6,21 +6,21 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 public class SumTwoNumbersGame implements Game {
-    protected static final String RIGHT = "Right";
-    protected static final String WRONG = "Wrong";
+    private static final String RIGHT = "Right";
+    private static final String WRONG = "Wrong";
     public static final int BOUND = 1000000000;
 
-    protected GameServer gameServer;
-    protected int i, j;
-    protected Lock lockData = new ReentrantLock();
-    protected Random random = new Random(0xDEADBEEF);
+    private GameServer gameServer;
+    private int i, j;
+    private Lock lockData = new ReentrantLock();
+    private Random random = new Random(0xDEADBEEF);
 
     public SumTwoNumbersGame(GameServer server) {
         gameServer = server;
         startRound();
     }
 
-    protected void startRound() {
+    private void startRound() {
         i = random.nextInt(BOUND);
         j = random.nextInt(BOUND);
         gameServer.broadcast(String.format("%d %d", i, j));

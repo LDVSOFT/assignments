@@ -10,14 +10,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class QuizGame implements Game {
 
-    protected static final String FORMAT_NEW_ROUND = "New round started: %s (%d letters)";
-    protected static final String FORMAT_CURRENT_PREFIX = "Current prefix is %s";
-    protected static final String FORMAT_WINNER = "The winner is %s";
-    protected static final String FORMAT_WRONG = "Wrong try";
-    protected static final String FORMAT_STOP = "Game has been stopped by %s";
-    protected static final String FORMAT_NOBODY = "Nobody guessed, the word was %s";
-    protected static final String MESSAGE_START = "!start";
-    protected static final String MESSAGE_STOP = "!stop";
+    private static final String FORMAT_NEW_ROUND = "New round started: %s (%d letters)";
+    private static final String FORMAT_CURRENT_PREFIX = "Current prefix is %s";
+    private static final String FORMAT_WINNER = "The winner is %s";
+    private static final String FORMAT_WRONG = "Wrong try";
+    private static final String FORMAT_STOP = "Game has been stopped by %s";
+    private static final String FORMAT_NOBODY = "Nobody guessed, the word was %s";
+    private static final String MESSAGE_START = "!start";
+    private static final String MESSAGE_STOP = "!stop";
 
     public void setDictionaryFilename(String dictionaryFilename) {
         this.dictionaryFilename = dictionaryFilename;
@@ -32,11 +32,11 @@ public class QuizGame implements Game {
     }
 
     // Params:
-    protected String dictionaryFilename;
-    protected int maxLettersToOpen;
-    protected int delayUntilNextLetter;
+    private String dictionaryFilename;
+    private int maxLettersToOpen;
+    private int delayUntilNextLetter;
 
-    protected static class Question {
+    private static class Question {
         private String question;
         private String answer;
 
@@ -46,14 +46,14 @@ public class QuizGame implements Game {
         }
     }
 
-    protected GameServer gameServer;
-    protected Lock lockMessages = new ReentrantLock();
-    protected ArrayList<Question> questions = new ArrayList<>();
-    protected int currentQuestion = -1;
-    protected int currentProgress;
-    protected boolean isRunning = false;
+    private GameServer gameServer;
+    private Lock lockMessages = new ReentrantLock();
+    private ArrayList<Question> questions = new ArrayList<>();
+    private int currentQuestion = -1;
+    private int currentProgress;
+    private boolean isRunning = false;
 
-    protected long lastEvent = 0;
+    private long lastEvent = 0;
 
     public QuizGame(GameServer server) {
         gameServer = server;
@@ -107,7 +107,7 @@ public class QuizGame implements Game {
         }
     }
 
-    protected void readQuestions() {
+    private void readQuestions() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(dictionaryFilename));
             String line;
@@ -121,19 +121,19 @@ public class QuizGame implements Game {
         }
     }
 
-    protected void startGame(String id) {
+    private void startGame(String id) {
         readQuestions();
         isRunning = true;
         startRound();
     }
 
-    protected void stopGame(String id) {
+    private void stopGame(String id) {
         stopTicker();
         gameServer.broadcast(String.format(FORMAT_STOP, id));
         isRunning = false;
     }
 
-    protected void startRound() {
+    private void startRound() {
         currentQuestion++;
         if (currentQuestion == questions.size()) {
             currentQuestion = 0;
@@ -143,7 +143,7 @@ public class QuizGame implements Game {
         runTicker();
     }
 
-    protected void runTicker() {
+    private void runTicker() {
         lastEvent = System.currentTimeMillis();
         new Thread(new Runnable() {
             final long startLastEvent = lastEvent;
@@ -167,11 +167,11 @@ public class QuizGame implements Game {
         }).start();
     }
 
-    protected void stopTicker() {
+    private void stopTicker() {
         lastEvent = 0;
     }
 
-    protected void tickGame() {
+    private void tickGame() {
         currentProgress += 1;
         if (currentProgress > maxLettersToOpen) {
             gameServer.broadcast(String.format(FORMAT_NOBODY, questions.get(currentQuestion).answer));
