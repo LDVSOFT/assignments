@@ -44,8 +44,8 @@ public class Injector {
         // Gather parameters recursively
         Constructor<?> constructor = solutionClass.getConstructors()[0];
         List<Object> params = new ArrayList<>();
-        for (Type type : constructor.getGenericParameterTypes()) {
-            params.add(initializeInContext(type.getTypeName(), context, implementationClassNames));
+        for (Class<?> paramClass : constructor.getParameterTypes()) {
+            params.add(initializeInContext(paramClass.getCanonicalName(), context, implementationClassNames));
         }
 
         // Create instance
